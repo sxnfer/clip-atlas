@@ -2,6 +2,14 @@
 
 All notable changes to Clip Atlas are listed here. The format follows Keep a Changelog.
 
+## [1.1.4] - 2026-11-14
+
+### Changed
+
+- **The repository is now [sxnfer/clip-atlas](https://github.com/sxnfer/clip-atlas)** (it was auto-clip-sorter). Update
+  checks use the new name, and release pages and installers are accepted under either name, so updates keep working
+  across the rename. Old links redirect.
+
 ## [1.1.3] - 2026-10-26
 
 ### Added

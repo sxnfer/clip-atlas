@@ -11,7 +11,7 @@ You need:
   and the zip both need it, because they install into `C:\ProgramData`.
 
 Clip Atlas comes in two downloads on the
-[Releases page](https://github.com/sxnfer/auto-clip-sorter/releases):
+[Releases page](https://github.com/sxnfer/clip-atlas/releases):
 
 - **The installer**, `clip-atlas-<version>-windows-x64-installer.exe`. This is the recommended way.
 - **The zip**, `clip-atlas-<version>-windows-x64.zip`, for a manual install.
@@ -21,7 +21,7 @@ may also list Linux packages and source code. Clip Atlas is for Windows, so igno
 
 ## Install with the installer
 
-1. Open the [Releases page](https://github.com/sxnfer/auto-clip-sorter/releases) and open the
+1. Open the [Releases page](https://github.com/sxnfer/clip-atlas/releases) and open the
    newest release. A release marked **Pre-release** is a test build.
 2. Under **Assets**, download `clip-atlas-<version>-windows-x64-installer.exe`.
 3. Close OBS Studio.
@@ -56,7 +56,7 @@ downloaded file. The result should match the checksum in the release notes.
 
 ## Install from the zip
 
-1. Open the [Releases page](https://github.com/sxnfer/auto-clip-sorter/releases) and download
+1. Open the [Releases page](https://github.com/sxnfer/clip-atlas/releases) and download
    `clip-atlas-<version>-windows-x64.zip`.
 2. Close OBS Studio.
 3. Right-click the zip and choose **Extract All**. Open the new folder. Inside it is a folder
