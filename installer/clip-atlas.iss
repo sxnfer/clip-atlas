@@ -21,9 +21,9 @@ AppId={{0DE82F85-6F78-4982-9DC4-7A32F58D2C36}
 AppName=Clip Atlas
 AppVersion={#MyAppVersion}
 AppPublisher=sxnfer
-AppPublisherURL=https://github.com/sxnfer/auto-clip-sorter
-AppSupportURL=https://github.com/sxnfer/auto-clip-sorter
-AppUpdatesURL=https://github.com/sxnfer/auto-clip-sorter
+AppPublisherURL=https://github.com/sxnfer/clip-atlas
+AppSupportURL=https://github.com/sxnfer/clip-atlas
+AppUpdatesURL=https://github.com/sxnfer/clip-atlas
 ; OBS 31 loads plugins from this folder. Writing to ProgramData needs admin rights.
 DefaultDirName={commonappdata}\obs-studio\plugins\clip-atlas
 DisableDirPage=yes

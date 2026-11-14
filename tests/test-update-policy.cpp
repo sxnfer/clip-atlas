@@ -19,7 +19,9 @@ constexpr std::int64_t kDay = 24 * kHour;
 constexpr std::int64_t kMaxTime = std::numeric_limits<std::int64_t>::max();
 constexpr std::int64_t kMinTime = std::numeric_limits<std::int64_t>::min();
 
-const std::string kTrustedPrefix = "https://github.com/sxnfer/auto-clip-sorter/releases/";
+const std::string kTrustedPrefix = "https://github.com/sxnfer/clip-atlas/releases/";
+// The repository's name before it was renamed to clip-atlas; GitHub still serves it there.
+const std::string kFormerPrefix = "https://github.com/sxnfer/auto-clip-sorter/releases/";
 
 // The answer GitHub gives for a published release: its tag and its page, as the release page would link them.
 ReleaseInfo published(const std::string &tag)
@@ -81,8 +83,8 @@ void expect_update(const UpdateResult &result, const std::string &latest, const 
 TEST_CASE("the endpoint and the releases page are the repository's")
 {
 	CHECK(std::string(kLatestReleaseApiUrl) ==
-	      "https://api.github.com/repos/sxnfer/auto-clip-sorter/releases/latest");
-	CHECK(std::string(kReleasesPageUrl) == "https://github.com/sxnfer/auto-clip-sorter/releases");
+	      "https://api.github.com/repos/sxnfer/clip-atlas/releases/latest");
+	CHECK(std::string(kReleasesPageUrl) == "https://github.com/sxnfer/clip-atlas/releases");
 	CHECK(kUpdateCheckIntervalSeconds == 86400);
 }
 
@@ -177,6 +179,14 @@ TEST_CASE("is_trusted_release_url refuses the releases list itself, the bare pre
 	CHECK_FALSE(is_trusted_release_url(""));
 	// The fallback page lacks the trailing slash, so it is opened without this check, not through it.
 	CHECK(is_trusted_release_url(std::string(kReleasesPageUrl) + "/tag/1.0.0"));
+}
+
+TEST_CASE("is_trusted_release_url accepts the repository's former name too")
+{
+	CHECK(is_trusted_release_url(kFormerPrefix + "tag/1.1.3"));
+	CHECK_FALSE(is_trusted_release_url(kFormerPrefix));
+	CHECK_FALSE(is_trusted_release_url(kFormerPrefix + "tag/../x"));
+	CHECK_FALSE(is_trusted_release_url("https://github.com/sxnfer/clip-atlas-evil/releases/x"));
 }
 
 TEST_CASE("is_trusted_release_url requires the exact prefix, as written")
@@ -568,6 +578,15 @@ TEST_CASE("find_installer finds nothing without a usable installer")
 	}
 }
 
+TEST_CASE("find_installer accepts the download under the repository's former name")
+{
+	ReleaseInfo release = with_installer("1.2.0", "1.2.0");
+	release.assets.back().download_url = kFormerPrefix + "download/1.2.0/" + release.assets.back().name;
+	const std::optional<InstallerDownload> installer = find_installer(release, "1.2.0");
+	REQUIRE(installer);
+	CHECK(installer->url == kFormerPrefix + "download/1.2.0/clip-atlas-1.2.0-windows-x64-installer.exe");
+}
+
 TEST_CASE("find_installer only accepts the repository's own download address for the file")
 {
 	const std::string name = "clip-atlas-1.2.0-windows-x64-installer.exe";
@@ -575,6 +594,8 @@ TEST_CASE("find_installer only accepts the repository's own download address for
 		     std::string("https://evil.example/") + name,
 		     "http://github.com/sxnfer/auto-clip-sorter/releases/download/1.2.0/" + name,
 		     "https://github.com/someone-else/auto-clip-sorter/releases/download/1.2.0/" + name,
+		     "https://github.com/someone-else/clip-atlas/releases/download/1.2.0/" + name,
+		     kFormerPrefix + "download/1.1.0/" + name,
 		     kTrustedPrefix + "download/1.1.0/" + name,
 		     kTrustedPrefix + "download/1.2.0/" + name + "?x=1",
 		     kTrustedPrefix + "download/1.2.0/other/" + name,

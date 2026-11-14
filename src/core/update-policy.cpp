@@ -8,8 +8,8 @@
 
 namespace clip_atlas {
 
-const char *const kLatestReleaseApiUrl = "https://api.github.com/repos/sxnfer/auto-clip-sorter/releases/latest";
-const char *const kReleasesPageUrl = "https://github.com/sxnfer/auto-clip-sorter/releases";
+const char *const kLatestReleaseApiUrl = "https://api.github.com/repos/sxnfer/clip-atlas/releases/latest";
+const char *const kReleasesPageUrl = "https://github.com/sxnfer/clip-atlas/releases";
 const char *const kInstallerParameters = "/SILENT /SP- /NORESTART /WAITOBS";
 
 namespace {
@@ -21,9 +21,11 @@ constexpr std::int64_t kLargestTime = std::numeric_limits<std::int64_t>::max();
 // clock caught up, which could take days.
 constexpr std::int64_t kFutureToleranceSeconds = 60 * 60;
 
-// Every download page the plugin may open starts with this, the release list's path with its trailing slash.
-constexpr char kReleasePrefix[] = "https://github.com/sxnfer/auto-clip-sorter/releases/";
-constexpr std::size_t kReleasePrefixBytes = sizeof(kReleasePrefix) - 1;
+// Every download page the plugin may open starts with one of these, the release list's path with its trailing slash.
+// The repository was renamed from auto-clip-sorter to clip-atlas; GitHub serves it under both names, and an answer
+// fetched through the old name's redirect can carry either, so both are this repository.
+const std::string kReleasePrefixes[] = {"https://github.com/sxnfer/clip-atlas/releases/",
+					"https://github.com/sxnfer/auto-clip-sorter/releases/"};
 
 // Real release pages are much shorter; a longer answer is not one the plugin should send the user to.
 constexpr std::size_t kMaxUrlBytes = 300;
@@ -36,8 +38,9 @@ bool is_url_path_char(char c)
 	       c == '~' || c == '/' || c == '-';
 }
 
-// Every installer the plugin may download starts with this, then "<tag>/<file name>".
-constexpr char kDownloadPrefix[] = "https://github.com/sxnfer/auto-clip-sorter/releases/download/";
+// Every installer the plugin may download starts with one of these, then "<tag>/<file name>".
+const std::string kDownloadPrefixes[] = {"https://github.com/sxnfer/clip-atlas/releases/download/",
+					 "https://github.com/sxnfer/auto-clip-sorter/releases/download/"};
 
 constexpr char kDigestPrefix[] = "sha256:";
 constexpr std::size_t kDigestPrefixBytes = sizeof(kDigestPrefix) - 1;
@@ -99,17 +102,20 @@ bool update_check_due(std::optional<std::int64_t> last_check, std::int64_t now)
 
 bool is_trusted_release_url(const std::string &url)
 {
-	// Nothing after the prefix means the release list, not a release, so it is not a download page.
-	if (url.size() <= kReleasePrefixBytes || url.size() > kMaxUrlBytes)
+	if (url.size() > kMaxUrlBytes)
 		return false;
-	if (url.compare(0, kReleasePrefixBytes, kReleasePrefix) != 0)
-		return false;
-	for (std::size_t i = kReleasePrefixBytes; i < url.size(); ++i) {
-		if (!is_url_path_char(url[i]))
-			return false;
+	for (const std::string &prefix : kReleasePrefixes) {
+		// Nothing after the prefix means the release list, not a release, so it is not a download page.
+		if (url.size() <= prefix.size() || url.compare(0, prefix.size(), prefix) != 0)
+			continue;
+		for (std::size_t i = prefix.size(); i < url.size(); ++i) {
+			if (!is_url_path_char(url[i]))
+				return false;
+		}
+		// ".." would climb out of the releases directory on any server that resolves dot segments.
+		return url.find("..", prefix.size()) == std::string::npos;
 	}
-	// ".." would climb out of the releases directory on any server that resolves dot segments.
-	return url.find("..", kReleasePrefixBytes) == std::string::npos;
+	return false;
 }
 
 std::string installer_file_name(const std::string &version)
@@ -138,14 +144,21 @@ std::optional<InstallerDownload> find_installer(const ReleaseInfo &release, cons
 	if (!is_plain_tag(release.tag_name) || version.empty())
 		return std::nullopt;
 	const std::string name = installer_file_name(version);
-	// Built here rather than trusted from the answer: the only address that can come out is this repository's own
-	// download of this file.
-	const std::string expected_url = kDownloadPrefix + release.tag_name + "/" + name;
+	// Built here rather than trusted from the answer: the only addresses that can come out are this repository's own
+	// download of this file, under its current or its former name.
+	const std::string path = release.tag_name + "/" + name;
 	for (const ReleaseAsset &asset : release.assets) {
 		if (asset.name != name)
 			continue;
 		// An asset still uploading has no final size or digest yet.
-		if (asset.state != "uploaded" || asset.download_url != expected_url)
+		if (asset.state != "uploaded")
+			continue;
+		std::string expected_url;
+		for (const std::string &prefix : kDownloadPrefixes) {
+			if (asset.download_url == prefix + path)
+				expected_url = prefix + path;
+		}
+		if (expected_url.empty())
 			continue;
 		if (asset.size <= 0 || asset.size > kMaxInstallerBytes)
 			continue;

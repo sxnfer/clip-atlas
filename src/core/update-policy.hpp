@@ -2,7 +2,7 @@
 // means.
 //
 // The plugin asks GitHub's REST API for the latest published release:
-//   GET https://api.github.com/repos/sxnfer/auto-clip-sorter/releases/latest
+//   GET https://api.github.com/repos/sxnfer/clip-atlas/releases/latest
 // That endpoint returns only published releases that are not pre-releases
 // (drafts and pre-releases are never offered), as JSON with, among others,
 // "tag_name", "html_url", "draft", "prerelease" and "assets"; it answers 404
@@ -27,7 +27,7 @@ namespace clip_atlas {
 
 // The API address above.
 extern const char *const kLatestReleaseApiUrl;
-// "https://github.com/sxnfer/auto-clip-sorter/releases"; opened when a release
+// "https://github.com/sxnfer/clip-atlas/releases"; opened when a release
 // has no usable html_url.
 extern const char *const kReleasesPageUrl;
 
@@ -41,7 +41,7 @@ constexpr std::int64_t kUpdateCheckIntervalSeconds = 24 * 60 * 60;
 bool update_check_due(std::optional<std::int64_t> last_check, std::int64_t now);
 
 // Whether `url` may be opened as a release's download page: it starts with
-// "https://github.com/sxnfer/auto-clip-sorter/releases/" (exact, ASCII case
+// "https://github.com/sxnfer/clip-atlas/releases/" (exact, ASCII case
 // as written), has nothing but [0-9A-Za-z._~/-] after that prefix (no "?",
 // "#", "%", "@", "\", "..", whitespace or control characters), and is at most
 // 300 bytes. A tampered or unexpected answer must never make the plugin open
@@ -68,7 +68,7 @@ struct ReleaseInfo {
 
 // A release's Windows installer, checked and ready to download.
 struct InstallerDownload {
-	std::string url;       // https://github.com/sxnfer/auto-clip-sorter/releases/download/<tag>/<file_name>
+	std::string url;       // https://github.com/sxnfer/clip-atlas/releases/download/<tag>/<file_name>
 	std::string file_name; // installer_file_name() of the release's version
 	std::int64_t size = 0; // bytes, in (0, kMaxInstallerBytes]
 	std::string sha256;    // 64 lowercase hex digits
@@ -86,7 +86,7 @@ std::optional<std::string> sha256_from_digest(const std::string &digest);
 
 // The installer for `version` among `release`'s assets: the one named installer_file_name(version), in state
 // "uploaded", with a size in (0, kMaxInstallerBytes], a sha256 digest, and a download URL that is exactly
-// "https://github.com/sxnfer/auto-clip-sorter/releases/download/<tag_name>/<name>". The tag must be made of
+// "https://github.com/sxnfer/clip-atlas/releases/download/<tag_name>/<name>". The tag must be made of
 // [0-9A-Za-z._~-] with no "..", so it can't leave its path segment. nullopt when no asset passes: the plugin then
 // offers the release page instead.
 std::optional<InstallerDownload> find_installer(const ReleaseInfo &release, const std::string &version);
