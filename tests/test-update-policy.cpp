@@ -82,8 +82,7 @@ void expect_update(const UpdateResult &result, const std::string &latest, const 
 
 TEST_CASE("the endpoint and the releases page are the repository's")
 {
-	CHECK(std::string(kLatestReleaseApiUrl) ==
-	      "https://api.github.com/repos/sxnfer/clip-atlas/releases/latest");
+	CHECK(std::string(kLatestReleaseApiUrl) == "https://api.github.com/repos/sxnfer/clip-atlas/releases/latest");
 	CHECK(std::string(kReleasesPageUrl) == "https://github.com/sxnfer/clip-atlas/releases");
 	CHECK(kUpdateCheckIntervalSeconds == 86400);
 }
