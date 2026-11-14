@@ -16,7 +16,7 @@ A native OBS Studio plugin that files your replays, recordings and screenshots i
 
 <br>
 
-| | |
+| Feature | What it does |
 | --- | --- |
 | **Finds the game** | Watches your Game and Window Capture sources. Nothing to configure. |
 | **Sorts every save** | Replays, recordings (split parts included) and screenshots. |
@@ -41,7 +41,9 @@ Windows 10 or 11 · OBS Studio 31+ · 64-bit
 Core logic is plain C++17, unit-tested without OBS:
 
 ```sh
-cmake -S tests -B build/tests && cmake --build build/tests && ctest --test-dir build/tests --output-on-failure
+cmake -S tests -B build/tests
+cmake --build build/tests
+ctest --test-dir build/tests --output-on-failure
 ```
 
 <sub>Replaces the original Python script, kept in <a href="legacy/">legacy/</a>. Roadmap: <a href="docs/PLAN.md">docs/PLAN.md</a></sub>
